@@ -1,4 +1,5 @@
 var provider = new firebase.auth.GoogleAuthProvider();
+window.offtube = {}
 
 var {
   AppBar,
@@ -19,7 +20,7 @@ var {
 } = MaterialUI;
 const MUI = MaterialUI
 
-function gapi_client_credentials() {
+export function gapi_client_credentials() {
   if (false) { // offtube
     return {
       'apiKey': 'AIzaSyDpPRUEO4MbFUvsu_xr7rq-hldSOgmErbA',
@@ -27,7 +28,7 @@ function gapi_client_credentials() {
       'scope': 'https://www.googleapis.com/auth/youtube.readonly',
       'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest']
     }
-  } else if (false) { // offtube 2
+  } else if (window.location.host.endsWith('8880')) { // offtube 2
     return {
       clientId: '206048614698-ur2gfmrbo26sqod6k9c3dhf7bet1r624.apps.googleusercontent.com',
       apiKey: 'AIzaSyAEgNx53h-Wb8wfKpjk6M4IazKNYtdyvWM',
@@ -46,9 +47,9 @@ function gapi_client_credentials() {
 
 
 //gapi.load('client', initClient);
-initfs()
+//initfs()
 
-async function initfs() {
+export async function initfs() {
   const MB = 1024 * 1024
   await fs.init({type: window.PERSISTENT, bytes: 1024 * MB});
   /*
@@ -59,17 +60,17 @@ async function initfs() {
   */
 }
 
-async function sleep(t) {
+export async function sleep(t) {
   return new Promise( resolve => {
     setTimeout( resolve, t*1000 )
   })
 }
-async function getfile(entry) {
+export async function getfile(entry) {
   return new Promise((resolve,reject)=>{
     entry.file(resolve,reject)
   })
 }
-const SAVEPATH = 'saves2'
+export const SAVEPATH = 'saves2'
 
 document.addEventListener("DOMContentLoaded", ()=>{
   /*

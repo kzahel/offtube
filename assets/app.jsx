@@ -1,13 +1,35 @@
-class AppRouter extends React.Component {
+import {HideOnScroll, JSONView} from './common.js'
+import {SimpleBottomNavigation} from './nav.js'
+import {SampleVideo} from './video.js'
+import {gapi_client_credentials} from '/index.js'
+import * as api from './api.js'
+import {PlaylistItem} from './playlistitem.js'
+import {Playlist} from './playlist.js'
+import {Downloads} from './downloads.js'
+import {Subscriptions} from './subscriptions.js'
+import {Home} from './home.js'
+
+const {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Card,
+  Icon,
+} = MaterialUI;
+const MUI = MaterialUI
+
+
+export class AppRouter extends React.Component {
   componentDidUpdate = (prevProps, prevState) => {
-    console.log('update', this.props)
+    //console.log('update', this.props)
   }
   render() {
     return <App {...this.props}/>
   }
 }
 
-class App extends React.Component {
+export class App extends React.Component {
   state = {
     clientReady: false,
     youtubeSignedIn: false,
@@ -19,19 +41,17 @@ class App extends React.Component {
   }
   componentDidUpdate = (prevProps, prevState) => {
     if (! prevState.youtubeSignedIn && this.state.youtubeSignedIn) {
-      this.getplaylists();
+      // this.getplaylists();
     }
     if (_.isEmpty(prevState.playlists) &&
         this.state.playlists.items &&
         this.state.playlists.items.length
     ) {
-      this.setState({selectedPlaylist:this.state.playlists.items[0].id})
+      // this.setState({selectedPlaylist:this.state.playlists.items[0].id})
     }
   }
   componentDidMount() {
-    console.log('init app',this.props)
-    console.log('gapi load')
-    gapi.load('client',this.initClient)
+    //console.log('init app',this.props)
   }
   youtubelogout = () => {
     const GoogleAuth = gapi.auth2.getAuthInstance();
@@ -119,12 +139,14 @@ class App extends React.Component {
     if (! this.state.youtubeSignedIn) return
     if (this.subscriptions_loading) return
     this.subscriptions_loading = true
-    const subscriptions = await yt3_getsubscriptions()
+    const subscriptions = await api.yt3_getsubscriptions()
     this.setState({subscriptions}, () => {
       this.subscriptions_loading = false
     })
   }
   render_subscriptions() {
+    return <Subscriptions />
+    
     if (! this.state.subscriptions) {
       this.load_subscriptions()
       return 'Loading'
@@ -139,6 +161,7 @@ class App extends React.Component {
     );
   }
   render_home() {
+    return <Home />
     let playlists = [];
     if (!_.isEmpty(this.state.playlists)) {
       for (let playlist of this.state.playlists.items) {
@@ -159,7 +182,7 @@ class App extends React.Component {
     return (
       <React.Fragment>
         <Card className="introtext" >
-          Offline youtube audio playback webapp (with background play).
+          Audio playback webapp (with background play).
           { this.state.youtubeSignedIn ? null: 'Sign in to access your playlists.' }
         </Card>
         { (! this.state.youtubeSignedIn && this.state.clientReady) ?

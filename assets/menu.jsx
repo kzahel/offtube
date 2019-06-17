@@ -1,6 +1,6 @@
 var {Icon, Button, Menu, MenuItem} = MaterialUI;
 
-function SimpleMenu(props) {
+export function SimpleMenu(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   function handleClick(event) {

@@ -1,4 +1,8 @@
-class Playlist extends React.Component {
+import {Video} from './video.js'
+const {Box} = MaterialUI
+
+
+export class Playlist extends React.Component {
   constructor() {
     console.log('new Playlist')
     super()
@@ -11,6 +15,7 @@ class Playlist extends React.Component {
     this.loaditems()
   }
   loaditems = async () => {
+    // TODO -- put thru dispatch / connect
     const resp = await gapi.client.youtube.playlistItems.list({
       "part": "snippet,contentDetails",
       "maxResults": 50,

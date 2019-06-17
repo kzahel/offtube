@@ -1,4 +1,6 @@
-class PlaylistItem extends React.Component {
+const {Box} = MaterialUI
+
+export class PlaylistItem extends React.Component {
   render() {
     return (
       <Box>

@@ -1,8 +1,10 @@
-function JSONView(props) {
+const MUI = MaterialUI
+
+export function JSONView(props) {
   return <pre className="mypre">{JSON.stringify(props, null, '  ')}</pre>
 }
 
-function HideOnScroll(props) {
+export function HideOnScroll(props) {
   const { children } = props;
   const trigger = MaterialUI.useScrollTrigger();
 

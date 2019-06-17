@@ -1,5 +1,15 @@
+import {store} from './store.js'
+import * as actions from './actions.js'
 
-function SimpleBottomNavigation(props) {
+const {
+  BottomNavigation,
+  BottomNavigationAction,
+  Icon,
+} = MaterialUI;
+
+
+
+export function SimpleBottomNavigation(props) {
   const view = props.view
   const viewmap = {
     'main':{idx: 0, path:'/'},
@@ -14,11 +24,8 @@ function SimpleBottomNavigation(props) {
       value={value}
       onChange={(event, newValue) => {
         setValue(newValue);
-        console.log('history change',newValue)
         const newpath = Object.entries(viewmap).filter( ([k,v]) => v.idx === newValue )[0][1].path
-        history.pushState(null, null, newpath )
-        resolve_router()
-        
+        store.dispatch(actions.change_route(newpath))
       }}
       showLabels
     >
@@ -29,3 +36,4 @@ function SimpleBottomNavigation(props) {
     </BottomNavigation>
   );
 }
+

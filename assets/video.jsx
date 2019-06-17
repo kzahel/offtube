@@ -1,3 +1,13 @@
+import {SAVEPATH, initfs, getfile, sleep} from './index.js'
+import {SimpleMenu} from './menu.js'
+import * as api from './api.js'
+
+const {Button,
+       InputLabel,
+       Input,
+       Select,
+       Icon} = MaterialUI
+
 function select_audio_format(formats) {
   let audio_formats = []
   for (let format of formats) {
@@ -12,7 +22,7 @@ function select_audio_format(formats) {
   return audio_formats[0]
 }
 
-function SampleVideo() {
+export function SampleVideo() {
   const props = {
     "id": "sample-video",
     "snippet": {
@@ -33,7 +43,7 @@ function SampleVideo() {
     </div>)
 }
 
-class Video extends React.Component {
+export class Video extends React.Component {
   state = {
     bytesdown: 0,
     speed: 1,
@@ -61,7 +71,7 @@ class Video extends React.Component {
       formats = await fs.readFile(this.mediainfopath)
       formats = JSON.parse(formats)
       this.formats = formats
-      console.log('read stored formats',formats)
+      //console.log('read stored formats',formats)
     } catch(e) {}
     if (fileentry) {
       const file = await getfile(fileentry)
@@ -137,7 +147,7 @@ class Video extends React.Component {
     if (! fileentry) {
       console.log('file not found, getting formats')
       this.setState({gettingFormats:true})
-      const formats = await get_video_formats(id)
+      const formats = await api.get_video_formats(id)
       this.setState({gettingFormats:false})
       console.log('got formats',formats)
       this.formats = formats
@@ -146,7 +156,7 @@ class Video extends React.Component {
       const format = select_audio_format(formats.formats)
       const format_id = format.format_id
       console.log('selected format', format)
-      const url = get_video_url(id, format_id)
+      const url = api.get_video_url(id, format_id)
       console.log('starting download')
       this.setState({isDownloading:true})
       await this.savefile(url,formats)
@@ -223,7 +233,7 @@ class Video extends React.Component {
         <br />
         duration: {this.duration}
         <div>
-          { (! this.state.file && ! this.state.actionInProgress) ? 
+          { (! this.state.file && ! this.state.actionInProgress && window.location.host.endsWith('8880')) ?
         <Button 
                disabled={this.actionInProgress}
                onClick={this.doDownload} 
