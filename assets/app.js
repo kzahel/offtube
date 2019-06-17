@@ -36,7 +36,7 @@ function AppComponent({dispatch, ...props}) {
       case 'home':
         return <Home />
       case 'player':
-        return <div>Now Playing</div>
+        return null
       case 'subscriptions':
         return <Subscriptions />
       case 'downloads':
@@ -64,7 +64,7 @@ function AppComponent({dispatch, ...props}) {
 
         <div className="content">
           <Player />
-          {JSONView(props)}
+          {false ? JSONView(props) : null}
           {render_main()}
         </div>
 

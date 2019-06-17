@@ -18,7 +18,7 @@ export function SimpleMenu(props) {
   })
   
   return (
-    <div>
+    <React.Fragment>
       <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
         {props.value || ''}<Icon>more_vert</Icon>
       </Button>
@@ -31,6 +31,7 @@ export function SimpleMenu(props) {
       >
         {actions}
       </Menu>
-    </div>
+    </React.Fragment>
+
   );
 }

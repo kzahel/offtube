@@ -9,7 +9,7 @@ function SubscriptionsComponent({dispatch, ...props}) {
     
     if (! loading &&
         ! props.subscriptions &&
-        props.gapi) {
+        props.youtubeLoggedIn) {
       setLoading(true)
       dispatch( actions.getsubscriptions() )
     }
@@ -27,6 +27,7 @@ function SubscriptionsComponent({dispatch, ...props}) {
 
 function mapStateToProps(state) {
   return {
+    youtubeLoggedIn: state.status.YOUTUBE_USER_AUTHENTICATED,
     gapi: state.status.GAPI_CLIENT_LOADED,
     subscriptions: state.subscriptions
   }

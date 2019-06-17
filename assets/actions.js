@@ -12,7 +12,7 @@ export function youtubelogout() {
     const GoogleAuth = gapi.auth2.getAuthInstance();
     //GoogleAuth.disconnect(); // this will deauthorize the app
     GoogleAuth.signOut()
-    dispatch( {type:'YOUTUBE_LOGGED_OUT', payload:{id_token}} )
+    dispatch( {type:'YOUTUBE_LOGGED_OUT'} )
   }
 }
 
@@ -37,7 +37,7 @@ export function load_gapi_client() {
       dispatch( {type:'GAPI_CLIENT_LOADED'} )
       //this.setState({clientReady:true})
       //this.youtubelogin({silent:true})
-      //dispatch( youtubelogin.bind(null, {silent:true}) )
+      dispatch( youtubelogin({silent:true}) )
     }).catch( (e) => {
       dispatch( {type:'GAPI_CLIENT_ERROR', payload:e} )
       //this.setState({error:e.details})
@@ -58,7 +58,7 @@ export function youtubelogin({silent}) {
       //console.log('nope. try signin?')
       if (silent) return
       dispatch( {type:'YOUTUBE_AUTHORIZE_REQUESTED' } )
-      GoogleAuth.signIn().then( res => {
+      gauth.signIn().then( res => {
         const id_token = gauth.currentUser.get().getAuthResponse().id_token
         dispatch( {type:'YOUTUBE_USER_AUTHENTICATED', payload:{id_token}} )
         //this.setState({youtubeSignedIn: true})

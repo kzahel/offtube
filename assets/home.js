@@ -13,7 +13,7 @@ function HomeComponent({dispatch, ...props}) {
     if (loading && props.playlists) setLoading(false)
     if (! loading &&
         ! props.playlists &&
-        props.gapi) {
+        props.youtubeLoggedIn) {
       setLoading(true)
       dispatch( actions.getplaylists() )
     }
@@ -52,9 +52,9 @@ function HomeComponent({dispatch, ...props}) {
       <React.Fragment>
         <Card className="introtext" >
           Audio playback webapp (with background play).
-          { props.gapi ? null: 'Sign in to access your playlists.' }
+          { props.youtubeLoggedIn ? null: 'Sign in to access your playlists.' }
         </Card>
-        { ( ! props.gapi ) ?
+        { ( ! props.youtubeLoggedIn ) ?
           <SampleVideo videoid="hnme8REPenQ" /> : null }
         {playlists}
         {selectedPlaylist}
@@ -68,6 +68,7 @@ function HomeComponent({dispatch, ...props}) {
 
 function mapState(state) {
   return {
+    youtubeLoggedIn: state.status.YOUTUBE_USER_AUTHENTICATED,
     gapi: state.status.GAPI_CLIENT_LOADED,
     playlists: state.playlists
   }

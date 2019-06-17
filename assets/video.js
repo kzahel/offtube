@@ -3,6 +3,7 @@ import {SimpleMenu} from './menu.js'
 import * as api from './api.js'
 import {store} from './store.js'
 import * as actions from './actions.js'
+import {JSONView} from './common.js'
 
 const {Button,
        InputLabel,
@@ -57,7 +58,6 @@ export class Video extends React.Component {
     mediaurl: null,
     duration: null
   }
-  debug = false
   static getDerivedStateFromProps(props, state) {
     const videoid = props.videoid || props.contentDetails.videoId
     return {...state,
@@ -66,8 +66,12 @@ export class Video extends React.Component {
     }
   }
   async componentDidMount() {
+    this.debug = false
     let fileentry
     let formats
+    while (! store.getState().status.FS_READY) {
+      await sleep(0.1);
+    }
     try {
       fileentry = await fs.getEntry(this.mediapath)
       formats = await fs.readFile(this.mediainfopath)
@@ -184,7 +188,7 @@ export class Video extends React.Component {
   doCancelDownload = () => {
   }
   doOpenInWindow = () => {
-    window.open(this.state.mediaurl, '_blank')
+    window.open(this.getMediaURL(), '_blank')
     //openNewBackgroundTab(this.state.mediaurl) // does not work / impossible
   }
   doPlay = () => {
@@ -193,7 +197,6 @@ export class Video extends React.Component {
   menuactions() {
     const actions = {}
     if (this.state.file) {
-      actions['Play'] = this.doPlay
       actions['Delete File'] = this.doDeleteFile;
       actions['Open in New Window'] = this.doOpenInWindow;
     }
@@ -230,34 +233,30 @@ export class Video extends React.Component {
         <span onClick={this.showInfo}>{this.thumbnail}</span>
         <br />
         { this.state.actionInProgress ? <MaterialUI.CircularProgress /> : null }
-      {(this.state.file && false) ?
-       <video ref={n=>this.videoElt=n} src={this.getMediaURL()} controls /> : null }
         <br />
       {this.title}
-        <br />
-        downloaded bytes: {this.state.bytesdown.toLocaleString()}
-        <br />
-        duration: {this.duration}
+      <br />
+      {this.state.bytesdown ? 
+        <span>downloaded bytes {this.state.bytesdown.toLocaleString()}<br /><span> : null }
+
+        duration: {this.duration} seconds<br />
+        {this.state.file && this.state.file.size ?
+         <span>{'File size:'} {this.state.file.size.toLocaleString()}</span> : null }
         <div>
-          { (! this.state.file && ! this.state.actionInProgress && window.location.host.endsWith('8880')) ?
+          { (! this.state.file && ! this.state.actionInProgress) ?
         <Button 
-               disabled={this.actionInProgress}
                onClick={this.doDownload} 
         >Download <Icon>arrow_downward</Icon></Button> : null }
 
+          { (this.state.file && ! this.state.actionInProgress) ?
+        <Button 
+               onClick={this.doPlay} 
+        ><Icon>play_arrow</Icon>Play</Button> : null }
+
+          
         <SimpleMenu actions={this.menuactions()} />
 
-      <InputLabel htmlFor="playback-speed">Playback speed</InputLabel>        
-      <Select native
-              inputProps={{
-                id: 'playback-speed',
-                  }}
-              value={this.state.speed} onChange={this.speedChange}>
-        <option value={1}>1x speed</option>
-        <option value={1.5}>1.5x speed</option>
-        <option value={2}>2x speed</option>
-      </Select>
-      </div>
+        </div>
         {this.debug ? JSONView({state:this.state,props:this.props}) : null}
       </div>
       );
