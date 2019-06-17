@@ -20,7 +20,6 @@ function PlayerComponent({...props}) {
     {JSONView(props)}
     <p>Video player!</p>
     
-    { props.id ? <Video key={props.id} videoid={props.id} /> : null }
     { props.url ?
 
       <video ref={vidref} autoPlay src={props.url} controls /> : null }
@@ -37,7 +36,8 @@ function PlayerComponent({...props}) {
 
       <Button onClick={(e) => { seek(-30) }}><Icon>replay_30</Icon></Button>
       <Button onClick={(e) => { seek(-30) }}><Icon>forward_30</Icon></Button>
-      
+      { props.id ? <Video key={props.id} videoid={props.id} /> : null }
+      <div style={{height:'50px'}}></div>
     </div>
   )
 }

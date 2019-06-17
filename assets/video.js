@@ -43,7 +43,7 @@ export function SampleVideo() {
   return (<div>
     <h4>Sample Video</h4>
     <Video {...props} />
-    </div>)
+  </div>)
 }
 
 export class Video extends React.Component {
@@ -206,7 +206,7 @@ export class Video extends React.Component {
     return {
       ...actions,
       'Remove from playlist':this.doRemoveFromPlaylist,
-//      'Download':this.doDownload
+      //      'Download':this.doDownload
     }
   }
   showInfo = () => {
@@ -230,35 +230,35 @@ export class Video extends React.Component {
   render() {
     return (
       <div className="videodiv">
-        <span onClick={this.showInfo}>{this.thumbnail}</span>
-        <br />
-        { this.state.actionInProgress ? <MaterialUI.CircularProgress /> : null }
-        <br />
+      <span onClick={this.showInfo}>{this.thumbnail}</span>
+      <br />
+      { this.state.actionInProgress ? <MaterialUI.CircularProgress /> : null }
+      <br />
       {this.title}
       <br />
       {this.state.bytesdown ? 
-        <span>downloaded bytes {this.state.bytesdown.toLocaleString()}<br /><span> : null }
+       <span>{'Downloaded bytes:'} {this.state.bytesdown.toLocaleString()}<br /></span> : null }
+      duration: {this.duration} seconds <br />
+      {this.state.file && this.state.file.size ?
+       <span>{'File size:'} {this.state.file.size.toLocaleString()}</span> : null }
+      <div>
 
-        duration: {this.duration} seconds<br />
-        {this.state.file && this.state.file.size ?
-         <span>{'File size:'} {this.state.file.size.toLocaleString()}</span> : null }
-        <div>
-          { (! this.state.file && ! this.state.actionInProgress) ?
-        <Button 
-               onClick={this.doDownload} 
-        >Download <Icon>arrow_downward</Icon></Button> : null }
+        { (! this.state.file && ! this.state.actionInProgress) ?
+          <Button 
+            onClick={this.doDownload} 
+          >Download <Icon>arrow_downward</Icon></Button> : null }
 
-          { (this.state.file && ! this.state.actionInProgress) ?
-        <Button 
-               onClick={this.doPlay} 
-        ><Icon>play_arrow</Icon>Play</Button> : null }
+        { (this.state.file && ! this.state.actionInProgress) ?
+          <Button 
+            onClick={this.doPlay} 
+          ><Icon>play_arrow</Icon>Play</Button> : null }
 
-          
+        
         <SimpleMenu actions={this.menuactions()} />
 
-        </div>
-        {this.debug ? JSONView({state:this.state,props:this.props}) : null}
       </div>
-      );
+      {this.debug ? JSONView({state:this.state,props:this.props}) : null }
+  </div>
+    )
   }
 }
