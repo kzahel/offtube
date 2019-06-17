@@ -35,7 +35,7 @@ function PlayerComponent({...props}) {
       </Select>
 
       <Button onClick={(e) => { seek(-30) }}><Icon>replay_30</Icon></Button>
-      <Button onClick={(e) => { seek(-30) }}><Icon>forward_30</Icon></Button>
+      <Button onClick={(e) => { seek(30) }}><Icon>forward_30</Icon></Button>
       { props.id ? <Video key={props.id} videoid={props.id} /> : null }
       <div style={{height:'50px'}}></div>
     </div>
