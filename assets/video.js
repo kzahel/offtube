@@ -1,6 +1,8 @@
 import {SAVEPATH, initfs, getfile, sleep} from './index.js'
 import {SimpleMenu} from './menu.js'
 import * as api from './api.js'
+import {store} from './store.js'
+import * as actions from './actions.js'
 
 const {Button,
        InputLabel,
@@ -185,9 +187,13 @@ export class Video extends React.Component {
     window.open(this.state.mediaurl, '_blank')
     //openNewBackgroundTab(this.state.mediaurl) // does not work / impossible
   }
+  doPlay = () => {
+    store.dispatch( actions.playmedia(this.state.videoid,this.title,this.getMediaURL()) )
+  }
   menuactions() {
     const actions = {}
     if (this.state.file) {
+      actions['Play'] = this.doPlay
       actions['Delete File'] = this.doDeleteFile;
       actions['Open in New Window'] = this.doOpenInWindow;
     }
@@ -224,7 +230,7 @@ export class Video extends React.Component {
         <span onClick={this.showInfo}>{this.thumbnail}</span>
         <br />
         { this.state.actionInProgress ? <MaterialUI.CircularProgress /> : null }
-      {this.state.file ?
+      {(this.state.file && false) ?
        <video ref={n=>this.videoElt=n} src={this.getMediaURL()} controls /> : null }
         <br />
       {this.title}

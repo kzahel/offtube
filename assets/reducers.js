@@ -20,13 +20,31 @@ function subscriptions(state = null, action) {
 }
 
 function status(state = {}, action) {
+  const newstate = {...state}
   switch(action.type) {
     case 'GAPI_CLIENT_LOADED':
+    case 'YOUTUBE_USER_AUTHENTICATED':
     case 'FS_READY':
-      const newstate = {...state}
+      newstate[action.type] = true
+      return newstate
+    case 'YOUTUBE_LOGGED_OUT':
+      newstate['YOUTUBE_USER_AUTHENTICATED']=false
       newstate[action.type] = true
       return newstate
   }
+  return state
+}
+
+function player(state = {}, action) {
+  switch(action.type) {
+    case 'PLAY_MEDIA':
+      return {
+        ...state,
+        ...action.payload
+      }
+  }
+              
+  
   return state
 }
 
@@ -35,4 +53,5 @@ export const reducer = Redux.combineReducers({
   playlists,
   pathname,
   status,
+  player
 })

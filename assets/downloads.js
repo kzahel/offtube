@@ -4,7 +4,7 @@ import {SAVEPATH} from './index.js'
 import {Video} from './video.js'
 import {store} from './store.js'
 
-export class RawDownloads extends React.Component {
+export class DownloadsComponent extends React.Component {
   state = {
     fetching:false,
     files:null
@@ -42,9 +42,8 @@ export class RawDownloads extends React.Component {
 
 
 function mapProps(state) {
-  console.log('connected rawdownloads map')
   return {}
 }
 function mapDispatch() {}
 
-export const Downloads = ReactRedux.connect(mapProps)(RawDownloads)
+export const Downloads = ReactRedux.connect(mapProps)(DownloadsComponent)

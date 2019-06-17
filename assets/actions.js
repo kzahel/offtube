@@ -1,6 +1,20 @@
 import {initfs, gapi_client_credentials} from './index.js'
 import * as api from './api.js'
 
+export function playmedia(id, title, url) {
+  return function(dispatch) {
+    dispatch( {type:'PLAY_MEDIA', payload:{id,title,url}} )
+  }
+}
+
+export function youtubelogout() {
+  return async function(dispatch) {
+    const GoogleAuth = gapi.auth2.getAuthInstance();
+    //GoogleAuth.disconnect(); // this will deauthorize the app
+    GoogleAuth.signOut()
+    dispatch( {type:'YOUTUBE_LOGGED_OUT', payload:{id_token}} )
+  }
+}
 
 export function request_fs() {
   return async function(dispatch) {

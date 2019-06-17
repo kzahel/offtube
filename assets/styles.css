@@ -2,6 +2,8 @@ img.vidthumb {
     width:200px;
 }
 
+.hidden { display:none }
+
 .mypre {
     background: #eee;
     white-space: pre-wrap;

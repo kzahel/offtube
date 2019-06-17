@@ -4,7 +4,6 @@ const {Box} = MaterialUI
 
 export class Playlist extends React.Component {
   constructor() {
-    console.log('new Playlist')
     super()
     this.state = {
       items:[]
