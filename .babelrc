@@ -1,0 +1,10 @@
+{
+  plugins: [
+    "babel-plugin-transform-react-jsx",
+    "babel-plugin-syntax-jsx",
+    "babel-plugin-syntax-async-generators", 
+    "babel-plugin-syntax-object-rest-spread",
+    "babel-plugin-syntax-dynamic-import",
+    "babel-plugin-syntax-class-properties"
+  ]
+}
