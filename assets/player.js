@@ -19,10 +19,13 @@ function PlayerComponent({...props}) {
     <div className={show ? "" : "hidden"}>
     {JSONView(props)}
     <p>Video player!</p>
-    
-    { props.url ?
 
+
+    { props.url ?
       <video ref={vidref} autoPlay src={props.url} controls /> : null }
+
+    <br />
+    
       <InputLabel htmlFor="playback-speed">Playback speed</InputLabel>        
       <Select native
               inputProps={{
@@ -33,18 +36,23 @@ function PlayerComponent({...props}) {
         <option value={1.5}>1.5x speed</option>
         <option value={2}>2x speed</option>
       </Select>
-
       <Button onClick={(e) => { seek(-30) }}><Icon>replay_30</Icon></Button>
       <Button onClick={(e) => { seek(30) }}><Icon>forward_30</Icon></Button>
-      { props.id ? <Video key={props.id} videoid={props.id} /> : null }
-      <div style={{height:'50px'}}></div>
+
+    <br />
+
+    { props.id ? <Video key={props.id} id={props.id} /> : null }
+
+      <div style={{height:'50px'}}>
+      </div>
+    
     </div>
   )
 }
 
 function mapState(state) {
   return {
-    pathname:state.pathname,
+    pathname: state.pathname, // needed to know to show only on /player page
     ...state.player
   }
 }

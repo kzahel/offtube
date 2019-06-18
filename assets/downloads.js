@@ -31,7 +31,7 @@ export class DownloadsComponent extends React.Component {
     if (this.state.files) {
       const videos = this.state.files.map( f => {
         const id = f.name.split('.')[0] 
-        return <Video onDeleteCallback={(e)=>this.onDelete(e, id)} key={id} videoid={id} />
+        return <Video onDeleteCallback={(e)=>this.onDelete(e, id)} key={id} id={id} />
       })
       return videos
     } else {

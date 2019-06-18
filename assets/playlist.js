@@ -26,9 +26,10 @@ export class Playlist extends React.Component {
   render() {
     const items = []
     for (let item of this.state.items) {
+      const id = item.snippet.resourceId.videoId
       items.push( (
-        <div key={item.id} className="playlist">
-          <Video {...item} />
+        <div key={id} className="playlist">
+          <Video {...item} id={id} />
         </div>
       )
       )

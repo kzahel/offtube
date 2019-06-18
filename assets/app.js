@@ -11,6 +11,7 @@ import {Home} from './home.js'
 import {youtubelogin, youtubelogout} from './actions.js'
 import {Player} from './player.js'
 
+
 const {
   AppBar,
   Toolbar,
@@ -18,6 +19,8 @@ const {
   Button,
   Card,
   Icon,
+  Dialog,
+  DialogTitle
 } = MaterialUI;
 const MUI = MaterialUI
 
@@ -31,6 +34,9 @@ export class AppRouter extends React.Component {
 }
 
 function AppComponent({dispatch, ...props}) {
+
+  const [open, setOpen] = React.useState(false)
+  
   function render_main() {
     switch(props.view) {
       case 'home':
@@ -48,7 +54,7 @@ function AppComponent({dispatch, ...props}) {
   function render() {
     return (
       <React.Fragment>
-        <MaterialUI.CssBaseline />
+        <MaterialUI.CssBaseline />        
         <HideOnScroll>
         <AppBar position="fixed" color="default">
           <Toolbar>
@@ -57,6 +63,10 @@ function AppComponent({dispatch, ...props}) {
               { props.youtubeLoggedIn ?
                 <Button color="primary" onClick={props.actions.youtubelogout}>Logout</Button> :
                 <Button color="primary" onClick={props.actions.youtubelogin}>Login</Button> }
+
+
+
+              
             </Typography>
           </Toolbar>
         </AppBar>
@@ -64,6 +74,7 @@ function AppComponent({dispatch, ...props}) {
 
         <div className="content">
           <Player />
+
           {false ? JSONView(props) : null}
           {render_main()}
         </div>

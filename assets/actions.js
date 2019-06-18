@@ -1,8 +1,126 @@
 import {initfs, gapi_client_credentials} from './index.js'
 import * as api from './api.js'
+import {store} from './store.js'
+
+import {SAVEPATH,getfile} from './index.js'
+
+function getmediapath(id, type) {
+  return `${SAVEPATH}/${id}.${type}`
+}
+
+function select_audio_format(formats) {
+  let audio_formats = []
+  for (let format of formats) {
+    if (format.format.indexOf('audio only') != -1 ||
+        format.width === null ||
+        format.vcodec == 'none') {
+      audio_formats.push(format)
+    }
+  }
+  audio_formats.sort((a,b)=>(b.abr-a.abr))
+  // highest bitrate
+  return audio_formats[0]
+}
+
+export function downloadmedia(id, format_id) {
+  return { type: 'MEDIA_DOWNLOAD_STARTED', payload:{id,format_id} }
+}
+
+export function getformats(id) {
+  return async function(dispatch) {
+    dispatch( { type: 'MEDIA_FORMATS_REQUESTED', payload:{id} } )
+    // TODO -- check if already have formats
+    const formats = await api.get_video_formats(id)
+    dispatch( { type: 'MEDIA_FORMATS_RECEIVED', payload:{id,formats} } )
+    return formats
+  }
+}
+
+export function deletemedia(id, props) {
+  return async function(dispatch) {
+    if (props.file) {
+      if (props.mediaurl) {
+        URL.revokeObjectURL(props.mediaurl)
+      }
+      // todo try catch ?
+      await fs.unlink(getmediapath(id,'mp4'))
+      await fs.unlink(getmediapath(id,'json'))
+    }
+    dispatch({type:'MEDIA_DELETED',payload:{id}})
+  }
+}
+
+export function downloadsave(id, url, formats) {
+  const mediapath = getmediapath(id,'mp4')
+  const mediainfopath = getmediapath(id,'json')
+  return async function (dispatch) {
+    dispatch({type:'MEDIA_DOWNLOAD_STARTED',payload:{id,url}})
+    const resp = await fetch(url)
+    const stream = resp.body
+    const outstream = fs.createWriteStream(mediapath)
+    const reader = stream.getReader()
+    const writer = outstream.getWriter()
+    let bytesdown = 0
+    const progress = _.throttle( function(bytesdown) {
+      dispatch({type:"MEDIA_DOWNLOAD_PROGRESS", payload:{id,bytesdown}})
+    }, 1000, {trailing:false})
+    while (true) {
+      let result = await reader.read()
+      if (result.done) break
+      bytesdown += result.value.length
+      progress(bytesdown)
+        // TODO debounce
+      writer.write(result.value)
+      // TODO -- delete file if there is some kind of error...
+    }
+    writer.close()
+    await fs.writeFile(mediainfopath, JSON.stringify(formats))
+    const fileentry = await fs.getEntry(mediapath)
+    const file = await getfile(fileentry)
+    dispatch({type:'MEDIA_DOWNLOAD_COMPLETED',payload:{id,url,file,bytesdown}})
+  }  
+}
+
+
+export function dodownload(id) {
+  return async function(dispatch) {
+    // TODO ensure FS loaded / ready
+    const state = store.getState()
+    if (state.media[id]) {
+      if (state.media[id].downloading) return
+      if (state.media[id].file) return
+    }
+    const formats = await getformats(id)(dispatch)
+    const format = select_audio_format(formats.formats)
+    const format_id = format.format_id
+    const url = api.get_video_url(id, format_id)
+    await downloadsave(id,url,formats)(dispatch)
+  }
+}
+
+export function mediaload(id) {
+  console.assert(id)
+  console.assert(id.length < 15)
+  return async function(dispatch) {
+    dispatch({type:'MEDIA_FS_LOAD_STARTED',payload:{id}})
+    let fileentry, formats, file;
+
+    try {
+      fileentry = await fs.getEntry(getmediapath(id,'mp4'))
+      file = await getfile(fileentry)
+      formats = await fs.readFile(getmediapath(id,'json'))
+      formats = JSON.parse(formats)
+    } catch(error) {
+      dispatch({type:'MEDIA_FS_LOAD_EXCEPTION',payload:{file,formats,id,error}})
+      return
+    }
+    dispatch({type:'MEDIA_FS_LOAD_FINISHED',payload:{file,formats,id}})
+  }
+}
+
 
 export function playmedia(id, title, url) {
-  return function(dispatch) {
+  return async function(dispatch) {
     dispatch( {type:'PLAY_MEDIA', payload:{id,title,url}} )
   }
 }

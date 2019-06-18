@@ -44,7 +44,58 @@ function player(state = {}, action) {
       }
   }
               
+  return state
+}
+
+function media(state = {}, action) {
+  let id
+  if (action.payload && action.payload.id) { id = action.payload.id }
+  if (! id) return state
   
+  switch(action.type) {
+    case 'MEDIA_FS_LOAD_STARTED':
+      return {
+        ...state,
+        [id]:{...state[id], fs_loading:true }
+      }
+    case 'MEDIA_DELETED':
+      const newmedia = {...state[id]}
+      delete newmedia.file
+      delete newmedia.mediaurl
+      
+      return {
+        ...state,
+        [id]:newmedia
+      }
+    case 'MEDIA_DOWNLOAD_STARTED':
+      return {
+        ...state,
+        [id]:{...state[id], downloading:true}
+      }
+    case 'MEDIA_DOWNLOAD_PROGRESS':
+      return {
+        ...state,
+        [id]:{...state[id], ...action.payload}
+      }
+    case 'MEDIA_DOWNLOAD_COMPLETED':
+      return {
+        ...state,
+        [id]:{...state[id], ...action.payload, downloading:false}
+      }
+    case 'MEDIA_FS_LOAD_FINISHED':
+      console.assert(id)
+      return {
+        ...state,
+        [id]:{...state[id], ...action.payload, fs_loading:false }
+      }
+    case 'MEDIA_URL_GENERATED':
+      return {
+        ...state,
+        [id]:{...state[id], ...action.payload}
+      }
+      
+  }
+              
   return state
 }
 
@@ -53,5 +104,6 @@ export const reducer = Redux.combineReducers({
   playlists,
   pathname,
   status,
+  media,
   player
 })

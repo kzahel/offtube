@@ -6,28 +6,44 @@ import * as actions from './actions.js'
 import {JSONView} from './common.js'
 
 const {Button,
+       Dialog,
+       Card,
+       CardContent,
+       CardActions,
+       Typography,
+       DialogTitle,
+       ListItem,
+       List,
        InputLabel,
        Input,
        Select,
        Icon} = MaterialUI
 
-function select_audio_format(formats) {
-  let audio_formats = []
-  for (let format of formats) {
-    if (format.format.indexOf('audio only') != -1 ||
-        format.width === null ||
-        format.vcodec == 'none') {
-      audio_formats.push(format)
-    }
+
+function DownloadFormats({formats,onSelect}) {
+  if (! formats) {
+    return <div>No formats</div>
   }
-  audio_formats.sort((a,b)=>(b.abr-a.abr))
-  // highest bitrate
-  return audio_formats[0]
+
+  const id = formats.id
+  function handleClick(format_id) {
+    // start download !
+    store.dispatch( actions.downloadmedia(id, format_id) )
+    onSelect()
+  }
+  
+  return (
+    <List>
+    {formats.formats.map( f => {
+      return <ListItem onClick={()=>handleClick(f.format_id)}key={`${id}-${f.format_id}`}>{f.format}</ListItem>
+    })}
+    </List>
+  )
 }
 
 export function SampleVideo() {
   const props = {
-    "id": "sample-video",
+    "id": "hnme8REPenQ",
     "snippet": {
       "title": "Hallelujah",
       "thumbnails": {
@@ -46,7 +62,7 @@ export function SampleVideo() {
   </div>)
 }
 
-export class Video extends React.Component {
+export class OldVideo extends React.Component {
   state = {
     bytesdown: 0,
     speed: 1,
@@ -56,7 +72,8 @@ export class Video extends React.Component {
     file: null,
     fileSize: 0,
     mediaurl: null,
-    duration: null
+    duration: null,
+    downloadDialog: false
   }
   static getDerivedStateFromProps(props, state) {
     const videoid = props.videoid || props.contentDetails.videoId
@@ -191,6 +208,16 @@ export class Video extends React.Component {
     window.open(this.getMediaURL(), '_blank')
     //openNewBackgroundTab(this.state.mediaurl) // does not work / impossible
   }
+  doOpenInYoutube = () => {
+    window.open(`https://www.youtube.com/watch?v=${this.state.videoid}`, '_blank')
+    //openNewBackgroundTab(this.state.mediaurl) // does not work / impossible
+  }
+  dialogDownloadOpen = () => {
+    this.setState({downloadDialog:true})
+  }
+  dialogDownloadClose = () => {
+    this.setState({downloadDialog:false})
+  }
   doPlay = () => {
     store.dispatch( actions.playmedia(this.state.videoid,this.title,this.getMediaURL()) )
   }
@@ -199,6 +226,8 @@ export class Video extends React.Component {
     if (this.state.file) {
       actions['Delete File'] = this.doDeleteFile;
       actions['Open in New Window'] = this.doOpenInWindow;
+      actions['Open in Youtube'] = this.doOpenInYoutube;
+      actions['Download...'] = this.dialogDownloadOpen;
     }
     if (this.state.actionInProgress) {
       actions['Cancel Download'] = this.doCancelDownload
@@ -253,6 +282,11 @@ export class Video extends React.Component {
             onClick={this.doPlay} 
           ><Icon>play_arrow</Icon>Play</Button> : null }
 
+
+        <Dialog open={this.state.downloadDialog} onClose={this.dialogDownloadClose}>
+          <DialogTitle>Select Video Format</DialogTitle>
+          <DownloadFormats onSelect={this.dialogDownloadClose} formats={this.formats} />
+        </Dialog>
         
         <SimpleMenu actions={this.menuactions()} />
 
@@ -262,3 +296,126 @@ export class Video extends React.Component {
     )
   }
 }
+
+
+function VideoComponent({dispatch,...props}) {
+  const debug=false
+  const id = props.id
+  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const actionInProgress = false
+  function doDeleteFile() {
+    dispatch(actions.deletemedia(id, props))
+    const cb = props.onDeleteCallback
+    if (cb) cb()
+  }
+  // lets pass in all these things as props ...
+  function menuactions() {
+    const actions = {}
+    if (props.file) {
+      actions['Delete File'] = doDeleteFile;
+/*
+      actions['Open in New Window'] = this.doOpenInWindow;
+      actions['Open in Youtube'] = this.doOpenInYoutube;
+      actions['Download...'] = this.dialogDownloadOpen;
+      */
+      actions['test'] = null
+    }
+    return {
+      ...actions,
+//      'Remove from playlist':this.doRemoveFromPlaylist,
+      //      'Download':this.doDownload
+    }
+  }
+
+  React.useEffect( () => {
+    if (! props.file && props.fs) dispatch(actions.mediaload(id))
+  }, [props.fs])
+
+
+  function thumbnail() {
+    if (props.snippet) return (<img className="vidthumb" src={props.snippet.thumbnails.default.url} />)
+    else if (props.formats) return (<img className="vidthumb" src={props.formats.thumbnail} />)
+    else return (<Icon>video_library</Icon>);
+  }
+  function duration() {
+    return props.duration ||
+           (props.formats && props.formats.duration) || null
+  }
+  function title() {
+    if (props.snippet) return props.snippet.title
+    else if (props.formats) return props.formats.title
+    else if (props.file) return props.file.name
+    else return id
+  }
+  function startDownload() {
+    dispatch( actions.dodownload(id) )
+  }
+  function doPlay() {
+    let mediaurl = props.mediaurl
+    if (! mediaurl) {
+      mediaurl = URL.createObjectURL(props.file)
+      dispatch( {type:'MEDIA_URL_GENERATED', payload:{id,mediaurl}} )
+    }
+    dispatch( actions.playmedia(id, title(), mediaurl) )
+  }
+  
+  return (
+
+    <Card className="mediacard">
+      <CardContent>
+
+
+<Typography>
+        {title()}
+</Typography>
+        {thumbnail()}
+
+
+      { props.downloading ? <MaterialUI.CircularProgress /> : null }
+
+{props.bytesdown ? 
+ <span>{'Downloaded bytes:'} {props.bytesdown.toLocaleString()}<br /></span> : null }
+
+{duration() ? <span>{'Duration: '} {duration().toLocaleString()} seconds</span> : null}
+
+<br />
+      {props.file && props.file.size ?
+       <span>{'File size:'} {props.file.size.toLocaleString()}</span> : null }
+
+
+
+
+
+    {debug ? JSONView({props,dialogOpen}) : null }
+      </CardContent>
+      <CardActions>
+
+        { (! props.file && ! props.downloading) ?
+          <Button 
+            onClick={startDownload} 
+          >Download <Icon>arrow_downward</Icon></Button> : null }
+
+        { (props.file && ! props.downloading) ?
+          <Button 
+            onClick={doPlay}
+          ><Icon>play_arrow</Icon>Play</Button> : null }
+
+
+        <SimpleMenu actions={menuactions()} />
+        <Dialog open={dialogOpen} onClose={()=>setDialogOpen(false)}>
+          <DialogTitle>Select Video Format</DialogTitle>
+          <DownloadFormats onSelect={()=>setDialogOpen(false)} formats={props.formats} />
+        </Dialog>
+      </CardActions>
+      
+    </Card>)
+}
+
+function mapProps(state, props) {
+  return {
+    fs: state.status.FS_READY,
+    ...state.media[props.id]
+  }
+}
+
+export const Video = ReactRedux.connect(mapProps)(VideoComponent)

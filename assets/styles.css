@@ -1,5 +1,12 @@
 img.vidthumb {
-    width:200px;
+    width:100%
+}
+
+.mediacard {
+    display:inline-block;
+    margin:20px;
+    width:300px;
+                
 }
 
 .hidden { display:none }
@@ -15,7 +22,6 @@ img.vidthumb {
     display:inline-block;
     width: 300px;
     margin:5px;
-    background:#ade;
 }
 .video {
     border: 1px;

@@ -1,7 +1,5 @@
 import {reducer} from './reducers.js'
 
-
-
 const middleware = [
   ReduxThunk.default.withExtraArgument({foobar:23}),
   reduxLogger.createLogger({
