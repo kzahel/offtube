@@ -1,5 +1,12 @@
 const MUI = MaterialUI
 
+export function parseUrlParams(url) {
+  return url.split('?')[1].
+             split('&').
+             map( part => part.split('=') ).
+             reduce( (acc, kv) => ({[kv[0]]:decodeURIComponent(kv[1]),...acc}), {})
+}
+
 export function JSONView(props) {
   return <pre className="mypre">{JSON.stringify(props, null, '  ')}</pre>
 }

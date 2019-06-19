@@ -2,24 +2,33 @@ import {store} from './store.js'
 import * as actions from './actions.js'
 import {AppRouter} from './app.js'
 
+
 const routes = [
-  { path: '/', action: (context, params) => <AppRouter view='home' /> },
-  { path: '/subscriptions', action: () => <AppRouter view='subscriptions' /> },
-  { path: '/player', action: () => <AppRouter view='player' /> },
-  { path: '/downloads', action: () => <AppRouter view='downloads' /> },
-  { path: '(.*)', action: () => <AppRouter view='404' /> }
+  { path: '/', action: () => ({view:'home'}) },
+  { path: '/subscriptions', action: () => ({view:'subscriptions'}) },
+  { path: '/subscriptions/(.*)', action: () => ({view:'subscriptions-detail'}) },
+  { path: '/player', action: () => ({view:'player'}) },
+  { path: '/downloads', action: () => ({view:'downloads'}) },
+  { path: '(.*)', action: () => ({view:'404'}) }
 ]
 
-const router = new UniversalRouter(routes)
-
-export function resolve_router(pathname) {
-  pathname = pathname || window.location.pathname
-  router.resolve({ pathname: pathname }).then(component => {
-    store.dispatch( actions.change_route(pathname) )
-    // ReactDOM.render(component, document.getElementById('root'))
-    // renders: <h1>Page One</h1>
-  })
+class SimpleRouter {
+  constructor(routes) {
+    this.routes = routes
+  }
+  async resolveRoute({pathname}) {
+    for (let route of this.routes) {
+      let res = pathname.match( `^${route.path}$` )
+      if (res) {
+        return { view: route.action().view,
+                 params: res.splice(1) }
+      }
+    }
+  }
 }
+
+//export const router = new UniversalRouter(routes)
+export const router = new SimpleRouter(routes)
 
 function mapStateToProps(state) {
   const viewmap = {
@@ -31,7 +40,8 @@ function mapStateToProps(state) {
 
   return {
     pathname: state.pathname,
-    view: viewmap[state.pathname]
+    view: viewmap[state.pathname] || state.pathname,
+    router: state.router
   }
 }
 

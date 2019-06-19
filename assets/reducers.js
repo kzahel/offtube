@@ -5,6 +5,12 @@ function pathname(state = null, action) {
   }
   return state
 }
+function router(state = null, action) {
+  if (action.type == 'ROUTE_CHANGED') {
+    return action.payload
+  }
+  return state
+}
 
 function playlists(state = null, action) {
   if (action.type == 'PLAYLISTS_RECEIVED') {
@@ -102,6 +108,7 @@ function media(state = {}, action) {
 export const reducer = Redux.combineReducers({
   subscriptions,
   playlists,
+  router,
   pathname,
   status,
   media,

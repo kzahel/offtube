@@ -298,9 +298,9 @@ export class OldVideo extends React.Component {
 }
 
 
-function VideoComponent({dispatch,...props}) {
+function VideoComponent({dispatch,id,mediaurl,...props}) {
   const debug=false
-  const id = props.id
+  console.assert(id !== "undefined")
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const actionInProgress = false
   function doDeleteFile() {
@@ -308,18 +308,24 @@ function VideoComponent({dispatch,...props}) {
     const cb = props.onDeleteCallback
     if (cb) cb()
   }
+  function doOpenInWindow() {
+    mediaurl = ensureMediaUrl()
+    window.open(mediaurl, '_blank')
+  }
+  function doOpenInYoutube() {
+    window.open(`https://www.youtube.com/watch?v=${id}`, '_blank')
+  }
+  
   // lets pass in all these things as props ...
   function menuactions() {
     const actions = {}
-    if (props.file) {
-      actions['Delete File'] = doDeleteFile;
-/*
-      actions['Open in New Window'] = this.doOpenInWindow;
-      actions['Open in Youtube'] = this.doOpenInYoutube;
+    if (props.file) actions['Delete File'] = doDeleteFile;
+    if (props.file) actions['Open in New Window'] = doOpenInWindow;
+    if (id) actions['Open in Youtube'] = doOpenInYoutube;
+      /*
       actions['Download...'] = this.dialogDownloadOpen;
       */
-      actions['test'] = null
-    }
+
     return {
       ...actions,
 //      'Remove from playlist':this.doRemoveFromPlaylist,
@@ -348,20 +354,23 @@ function VideoComponent({dispatch,...props}) {
     else return id
   }
   function startDownload() {
-    dispatch( actions.dodownload(id) )
+    dispatch( actions.dodownload({id}) )
   }
-  function doPlay() {
-    let mediaurl = props.mediaurl
+  function ensureMediaUrl() {
     if (! mediaurl) {
       mediaurl = URL.createObjectURL(props.file)
       dispatch( {type:'MEDIA_URL_GENERATED', payload:{id,mediaurl}} )
     }
+    return mediaurl
+  }
+  function doPlay() {
+    ensureMediaUrl()
     dispatch( actions.playmedia(id, title(), mediaurl) )
   }
   
   return (
 
-    <Card className="mediacard">
+    <Card key={id} className="mediacard">
       <CardContent>
 
 

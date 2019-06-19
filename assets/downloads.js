@@ -3,6 +3,30 @@ import {sleep} from './index.js'
 import {SAVEPATH} from './index.js'
 import {Video} from './video.js'
 import {store} from './store.js'
+const {Card,
+       CardContent,
+       CardActions } = MaterialUI
+
+function DownloadsInProgressComponent({downloading}) {
+  if (downloading && downloading.length) {
+    return (
+      <div>
+        {downloading.map(m=>(
+        <Card>
+          <CardContent>
+            Download:
+            {JSONView(m)}
+          </CardContent>
+        </Card>))}
+      </div>
+    )
+  }
+  return null
+}
+function mapState(state) {
+  return {downloading: Object.values(state.media).filter( m => m.downloading === true )}
+}
+export const DownloadsInProgress = ReactRedux.connect(mapState)(DownloadsInProgressComponent)
 
 export class DownloadsComponent extends React.Component {
   state = {
@@ -19,6 +43,7 @@ export class DownloadsComponent extends React.Component {
     if (! this.state.files) {
       let files = await fs.readdir(`${SAVEPATH}`)
       files = files.filter( f => f.name.endsWith('.mp4') )
+      files = files.filter( f => ! f.name.startsWith('undefined') )
       this.setState({files})
     }
   }

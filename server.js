@@ -8,9 +8,15 @@ const app = express();
 //to log requests
 //app.use(morgan('combined'))
 const youtube_dl = `${process.env.HOME}/.local/bin/youtube-dl`
-function get_video_formats(id) {
+function get_video_formats({id,url}) {
   return new Promise( resolve => {
-    exec(`${youtube_dl} -j "https://www.youtube.com/watch?v=${id}"`,{maxBuffer:1024*1024*10},
+    let vurl
+    if (url) {
+      vurl = url
+    } else {
+      vurl = `https://www.youtube.com/watch?v=${id}`
+    }
+    exec(`${youtube_dl} -j "${vurl}"`,{maxBuffer:1024*1024*10},
          (error, stdout, stderr) => {
            if (error || stderr.trim()) {
              console.error(`exec error: ${error}`);
@@ -67,7 +73,8 @@ app.use(SPA);
 
 app.get('/api/formats', async function(req, res) {
   const id = req.query.id
-  const resp = await get_video_formats(id)
+  const url = req.query.url
+  const resp = await get_video_formats({id,url})
   res.setHeader('content-type','text/plain')
   //res.setHeader('access-control-allow-origin','*')
   res.send(JSON.stringify(resp,null,' '))
@@ -76,15 +83,20 @@ app.get('/api/formats', async function(req, res) {
 app.get('/api/download', function(req, res) {
   const format = req.query.format
   const id = req.query.id
+  const url = req.query.url
+  const inp = id || url
   //res.setHeader('access-control-allow-origin','*')
   const cmd = youtube_dl
-  const args =  ['-f',format,id,'-o','-']
+  const args =  ['-f',format,inp,'-o','-']
+  console.log('dl args',[youtube_dl].concat(args))
+  // TODO on bad urls need to send error...
+  
   const proc = spawn(cmd, args)
-  console.log('begin: streaming video',id)
+  console.log('begin: streaming video',inp)
   proc.stdout.pipe(res)
   proc.stderr.on('data', d=>{
     // have to drain the stderr or it fails
-    // console.log('download stderr',d)
+    //console.log('download stderr',d)
   })
   proc.on('end', ()=>{
     console.log('end: video stream over',id)

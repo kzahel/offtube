@@ -32,8 +32,11 @@ function PlayerComponent({...props}) {
                 id: 'playback-speed',
                   }}
               value={playbackRate} onChange={(e) => { setPlaybackRate(e.target.value)}}>
-        <option value={1}>1x speed</option>
+        <option value={0.75}>0.75x speed</option>
+        <option value={1}>normal speed</option>
+        <option value={1.25}>1.25x speed</option>
         <option value={1.5}>1.5x speed</option>
+        <option value={1.75}>1.75x speed</option>
         <option value={2}>2x speed</option>
       </Select>
       <Button onClick={(e) => { seek(-30) }}><Icon>replay_30</Icon></Button>

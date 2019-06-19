@@ -1,13 +1,25 @@
 //const api_host = 'http://penguin.linux.test:3000'
 const api_host = ''
 
-export async function get_video_formats(id) {
-  const resp = await fetch(`${api_host}/api/formats?id=${id}`)
+export async function get_video_formats({id,url}) {
+  let resp
+  if (url) {
+    resp = await fetch(`${api_host}/api/formats?url=${encodeURIComponent(url)}`)
+  } else if (id) {
+    resp = await fetch(`${api_host}/api/formats?id=${id}`)
+  } else {
+    debugger
+  }
   const j = await resp.json()
   return j
 }
-export function get_video_url(id, format) {
-  return `${api_host}/api/download?id=${id}&format=${format}`
+export function get_video_url({id,url}, format) {
+  console.assert(id||url)
+  if (id) {
+    return `${api_host}/api/download?id=${id}&format=${format}`
+  } else {
+    return `${api_host}/api/download?url=${encodeURIComponent(url)}&format=${format}`
+  }
 }
 
 export function yt3_getvideoinfo(id) {

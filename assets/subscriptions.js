@@ -1,5 +1,6 @@
 import {JSONView} from './common.js'
 import * as actions from './actions.js'
+const {Card, CardContent, Typography} = MaterialUI
 
 function SubscriptionsComponent({dispatch, ...props}) {
   const [loading, setLoading] = React.useState(false)
@@ -14,13 +15,42 @@ function SubscriptionsComponent({dispatch, ...props}) {
       dispatch( actions.getsubscriptions() )
     }
   })
-  
 
+  function onClick(sub) {
+    // dispatch path change ?
+    console.log(sub)
+    dispatch(actions.change_route(`/subscriptions/${sub.id}`))
+  }
+  
+  let subcontent
+  if (props.subscriptions) {
+    const subs = props.subscriptions.sort( (a,b) => {
+      return new Date(a.snippet.publishedAt).getTime() - new Date(b.snippet.publishedAt).getTime()
+    })
+    subcontent = subs.map( sub => {
+      const t = new Date(sub.snippet.publishedAt)
+      return (
+      <Card key={sub.id} className="mediacard" onClick={()=>onClick(sub)}>
+        <CardContent>
+        <div>
+          <img src={sub.snippet.thumbnails.default.url} />
+          <Typography>
+            {sub.snippet.title}
+            <br />
+            Last activity: {t.toLocaleDateString()} {t.toLocaleTimeString()}
+          </Typography>
+        </div>
+        </CardContent>
+      </Card>)
+    })
+  }
   return (
+    
+
+
     <div>
-      Subscriptions! {loading}
-      Loading: <span>{JSONView({loading})}</span>
-      {JSONView(props)}
+    {subcontent}
+      {JSONView({props, loading})}
     </div>
   )
 }

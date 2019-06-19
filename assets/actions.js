@@ -1,7 +1,7 @@
 import {initfs, gapi_client_credentials} from './index.js'
 import * as api from './api.js'
 import {store} from './store.js'
-
+import {router} from './router.js'
 import {SAVEPATH,getfile} from './index.js'
 
 function getmediapath(id, type) {
@@ -26,12 +26,12 @@ export function downloadmedia(id, format_id) {
   return { type: 'MEDIA_DOWNLOAD_STARTED', payload:{id,format_id} }
 }
 
-export function getformats(id) {
+export function getformats({id,url}) {
   return async function(dispatch) {
-    dispatch( { type: 'MEDIA_FORMATS_REQUESTED', payload:{id} } )
+    dispatch( { type: 'MEDIA_FORMATS_REQUESTED', payload:{id,url} } )
     // TODO -- check if already have formats
-    const formats = await api.get_video_formats(id)
-    dispatch( { type: 'MEDIA_FORMATS_RECEIVED', payload:{id,formats} } )
+    const formats = await api.get_video_formats({id,url})
+    dispatch( { type: 'MEDIA_FORMATS_RECEIVED', payload:{id,url,formats} } )
     return formats
   }
 }
@@ -51,6 +51,8 @@ export function deletemedia(id, props) {
 }
 
 export function downloadsave(id, url, formats) {
+  console.assert(id)
+  //if (! id) id = decodeurlparams(url)
   const mediapath = getmediapath(id,'mp4')
   const mediainfopath = getmediapath(id,'json')
   return async function (dispatch) {
@@ -82,7 +84,8 @@ export function downloadsave(id, url, formats) {
 }
 
 
-export function dodownload(id) {
+export function dodownload({id, url}) {
+  console.assert(id||url)
   return async function(dispatch) {
     // TODO ensure FS loaded / ready
     const state = store.getState()
@@ -90,11 +93,15 @@ export function dodownload(id) {
       if (state.media[id].downloading) return
       if (state.media[id].file) return
     }
-    const formats = await getformats(id)(dispatch)
+    const formats = await getformats({id,url})(dispatch)
+    if (formats.error) {
+      dispatch({type:'MEDIA_DOWNLOAD_FAILED',payload:{id,url,error:formats.stderr}})
+      return
+    }
     const format = select_audio_format(formats.formats)
     const format_id = format.format_id
-    const url = api.get_video_url(id, format_id)
-    await downloadsave(id,url,formats)(dispatch)
+    const vidurl = api.get_video_url({id,url}, format_id)
+    await downloadsave(id,vidurl,formats)(dispatch)
   }
 }
 
@@ -204,9 +211,16 @@ export function getplaylists() {
   }
 }
 
-export function change_route(pathname) {
-  history.pushState(null, null, pathname )
-  return {type:'ROUTE_CHANGED', payload:{pathname:pathname}}
+export function change_route(pathname = window.location.pathname, data = null) {
+  return async function(dispatch) {
+    router.resolveRoute({ pathname: pathname }).then(data => {
+      history.pushState(null, null, pathname )
+      dispatch( {type:'ROUTE_CHANGED', payload:{pathname, data}} )
+      // ReactDOM.render(component, document.getElementById('root'))
+      // renders: <h1>Page One</h1>
+    }).catch(e=>{
+      console.warn('404 resolve path')
+      // store.dispatch( actions.change_route(null, {error:'notfound'}) )
+    })
+  }
 }
-
-

@@ -29,11 +29,11 @@ export class AppRouter extends React.Component {
   componentDidUpdate = (prevProps, prevState) => {
   }
   render() {
-    return <App view={this.props.view} />
+    return <App router={this.props} view={this.props.view} />
   }
 }
 
-function AppComponent({dispatch, ...props}) {
+function AppComponent({dispatch, router, ...props}) {
 
   const [open, setOpen] = React.useState(false)
   
@@ -45,10 +45,16 @@ function AppComponent({dispatch, ...props}) {
         return null
       case 'subscriptions':
         return <Subscriptions />
+      case 'subscriptions-detail':
+        return <div>sub detail</div>
       case 'downloads':
         return <Downloads />
       default:
-        return "404 not found!"
+        return (<div>
+          404 not found!
+          {JSONView({props,router})}
+            </div>)
+
     }
   }
   function render() {
