@@ -79,13 +79,11 @@ function HomeComponent({dispatch, ...props}) {
           Audio playback webapp (with background play).
           { props.youtubeLoggedIn ? null:
           <React.Fragment>
-            Sign in to access your playlists.
-            <br />
+            {' '}Sign in to access your playlists.
+          </React.Fragment>}
             <InputURL />
             <DownloadsInProgress />
-          </React.Fragment>
-            
-          }
+            <br />
         </Card>
         { ( ! props.youtubeLoggedIn ) ?
           <SampleVideo videoid="hnme8REPenQ" />
