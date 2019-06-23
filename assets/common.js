@@ -1,6 +1,7 @@
 const MUI = MaterialUI
 
 export function parseUrlParams(url) {
+  if (url.indexOf('?') === -1) return null
   return url.split('?')[1].
              split('&').
              map( part => part.split('=') ).

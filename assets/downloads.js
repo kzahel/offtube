@@ -9,10 +9,11 @@ const {Card,
 
 function DownloadsInProgressComponent({downloading}) {
   if (downloading && downloading.length) {
+    // TODO add key
     return (
       <div>
         {downloading.map(m=>(
-        <Card>
+        <Card key={m.id}>
           <CardContent>
             Download:
             {JSONView(m)}

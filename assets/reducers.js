@@ -88,6 +88,11 @@ function media(state = {}, action) {
         ...state,
         [id]:{...state[id], ...action.payload, downloading:false}
       }
+    case 'MEDIA_DOWNLOAD_FAILED':
+      return {
+        ...state,
+        [id]:{...state[id], ...action.payload, downloading:false}
+      }
     case 'MEDIA_FS_LOAD_FINISHED':
       console.assert(id)
       return {

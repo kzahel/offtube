@@ -13,9 +13,12 @@ function InputURL() {
   function onSubmit(e) {
     const url = e.target[0].value
     const params = parseUrlParams(url)
-    const id = params.v
-    //store.dispatch(actions.dodownload({url})) // todo make this work
-    store.dispatch(actions.dodownload({id}))
+    if (params) {
+      const id = params.v
+      store.dispatch(actions.dodownload({id}))
+    } else {
+      store.dispatch(actions.dodownload({url})) // todo make this work
+    }
     e.target[0].value = ''
     e.preventDefault()
   }

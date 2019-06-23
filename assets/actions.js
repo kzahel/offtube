@@ -4,11 +4,12 @@ import {store} from './store.js'
 import {router} from './router.js'
 import {SAVEPATH,getfile} from './index.js'
 
-function getmediapath(id, type) {
+function getmediapath(id, type, url) {
   return `${SAVEPATH}/${id}.${type}`
 }
 
 function select_audio_format(formats) {
+  if (formats.length === 1) return formats[0]
   let audio_formats = []
   for (let format of formats) {
     if (format.format.indexOf('audio only') != -1 ||
@@ -22,9 +23,9 @@ function select_audio_format(formats) {
   return audio_formats[0]
 }
 
-export function downloadmedia(id, format_id) {
+/*export function downloadmedia(id, format_id) {
   return { type: 'MEDIA_DOWNLOAD_STARTED', payload:{id,format_id} }
-}
+}*/
 
 export function getformats({id,url}) {
   return async function(dispatch) {
@@ -50,6 +51,12 @@ export function deletemedia(id, props) {
   }
 }
 
+function getDerivedId({id, url, formats}) {
+  if (id) return id
+  if (formats.id) return formats.id
+  return url
+}
+
 export function downloadsave(id, url, formats) {
   console.assert(id)
   //if (! id) id = decodeurlparams(url)
@@ -65,14 +72,19 @@ export function downloadsave(id, url, formats) {
     let bytesdown = 0
     const progress = _.throttle( function(bytesdown) {
       dispatch({type:"MEDIA_DOWNLOAD_PROGRESS", payload:{id,bytesdown}})
-    }, 1000, {trailing:false})
+    }, 250, {trailing:false})
     while (true) {
       let result = await reader.read()
       if (result.done) break
       bytesdown += result.value.length
       progress(bytesdown)
-        // TODO debounce
-      writer.write(result.value)
+      try {
+        await writer.write(result.value)
+      } catch(e) {
+        const {name, message} = e
+        dispatch({type:'MEDIA_DOWNLOAD_FAILED',payload:{id,url,error:{name,message}}})
+        return
+      }
       // TODO -- delete file if there is some kind of error...
     }
     writer.close()
@@ -101,7 +113,9 @@ export function dodownload({id, url}) {
     const format = select_audio_format(formats.formats)
     const format_id = format.format_id
     const vidurl = api.get_video_url({id,url}, format_id)
-    await downloadsave(id,vidurl,formats)(dispatch)
+    const derivedId = getDerivedId({id,url,formats})
+    console.assert(derivedId)
+    await downloadsave(derivedId,vidurl,formats)(dispatch)
   }
 }
 
