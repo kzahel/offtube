@@ -1,6 +1,6 @@
 import {JSONView} from './common.js'
 import {Video} from './video.js'
-import {loadRecentActions} from './runtime.js'
+import {loadRecentActions} from './db.js'
 const {Button, Icon, Select, InputLabel} = MaterialUI
 
 function PlayerComponent({...props}) {
