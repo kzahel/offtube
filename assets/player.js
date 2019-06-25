@@ -22,7 +22,9 @@ function PlayerComponent({...props}) {
   }, [props.id])
   
   function seek(secs, absolute = false) {
-    if (vidref.current) vidref.current.currentTime = secs + (absolute ? vidref.current.currentTime : 0)
+    if (vidref.current) {
+      vidref.current.currentTime = secs + (absolute ? 0 : vidref.current.currentTime)
+    }
   }
   
   return (
