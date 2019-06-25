@@ -1,11 +1,14 @@
-import {JSONView} from './common.js'
+import {JSONView, getfilenameid} from './common.js'
 import {sleep} from './index.js'
 import {SAVEPATH} from './index.js'
 import {Video} from './video.js'
 import {store} from './store.js'
+import * as actions from './actions.js'
+
 const {Card,
        CardContent,
        CardActions } = MaterialUI
+const {useEffect} = React
 
 function DownloadsInProgressComponent({downloading}) {
   if (downloading && downloading.length) {
@@ -29,46 +32,37 @@ function mapState(state) {
 }
 export const DownloadsInProgress = ReactRedux.connect(mapState)(DownloadsInProgressComponent)
 
-export class DownloadsComponent extends React.Component {
-  state = {
-    fetching:false,
-    files:null
-  }
-  static propTypes = {
-    fetching: PropTypes.bool.isRequired
-  }
-  async componentDidMount() {
-    while (! store.getState().status.FS_READY) {
-      await sleep(0.1);
+function DownloadsComponent(props) {
+  useEffect( () => {
+    if (! Object.keys(props.downloads).length && props.fs) {
+      // dont have downloads loaded yet
+      store.dispatch( actions.listDownloads() )
     }
-    if (! this.state.files) {
-      let files = await fs.readdir(`${SAVEPATH}`)
-      files = files.filter( f => f.name.endsWith('.mp4') )
-      files = files.filter( f => ! f.name.startsWith('undefined') )
-      this.setState({files})
-    }
-  }
-  onDelete = (evt, id) => {
+
+  },[props.fs]) // how do we know if a new vid has been downloaded ?
+  function onDelete(evt, id, f) {
     // remove video with id from the list of files
-    let files = this.state.files.filter( f => ! f.name.split('.')[0].startsWith(id) )
-    this.setState({files})
+    actions.deletemedia({id, file:f.file})
   }
-  render() {
-    if (this.state.files) {
-      const videos = this.state.files.map( f => {
-        const id = f.name.split('.')[0] 
-        return <Video onDeleteCallback={(e)=>this.onDelete(e, id)} key={id} id={id} />
-      })
-      return videos
-    } else {
-      return JSONView({props:this.props, state:this.state})
-    }
+
+  if (props.downloads && props.downloads.length) {
+    const videos = props.downloads.map( f => {
+      const id = getfilenameid((f.file || f.fileEntry).name)
+      return <Video onDeleteCallback={(e)=>onDelete(e, id, f)} key={id} id={id} />
+    })
+    return videos
+  } else {
+    return JSONView({props})
   }
 }
 
 
 function mapProps(state) {
-  return {}
+  return {
+    downloads: Object.values(state.media).filter( m => (m.file || m.fileEntry)  ),
+    //downloads: Object.values(state.media), // all media are downloads ?
+    fs: state.status.FS_READY
+  }
 }
 function mapDispatch() {}
 

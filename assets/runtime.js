@@ -38,14 +38,30 @@ async function db_append() {
 }
 window.db_append = db_append
 
-const dbPromise = openDB('offtube-kv-dev', 2, {
+const dbPromise = openDB('offtube-actions', 1, {
   upgrade(db) {
-    db.createObjectStore('actions',
+    const s = db.createObjectStore('actions',
       {keyPath: 'id',
        autoIncrement: true}
     );
+    s.createIndex('videoid','videoid')
   }
 })
+
+export async function loadRecentActions(id) {
+  let cursor = await db.transaction('actions').store.index('videoid').openCursor(null, 'prev');
+  const limit = 5
+  let count = 0
+  const res = []
+  while (cursor && count < limit) {
+    res.push(cursor.value)
+    cursor = await cursor.continue();
+    count++
+  }
+  return res
+}
+
+
 function isVideoPlaying(v) {
   return !!(v.currentTime > 0 && !v.paused && !v.ended && v.readyState > 2);
 }
@@ -56,7 +72,9 @@ async function periodicallyRecordPlayStatus() {
     const tx = db.transaction('actions', 'readwrite');
     const state = store.getState()
     //const istore = tx.objectStore('actions');
-    await db.add('actions', {videoid:state.player.id, videotime: v.currentTime, timestamp:Date.now()})
+    const payload = {videoid:state.player.id, videotime: v.currentTime, timestamp:Date.now()}
+    console.log('add action to db', payload)
+    await db.add('actions', payload)
     await tx.done;
   }
 }

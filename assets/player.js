@@ -1,25 +1,35 @@
 import {JSONView} from './common.js'
 import {Video} from './video.js'
+import {loadRecentActions} from './runtime.js'
 const {Button, Icon, Select, InputLabel} = MaterialUI
 
 function PlayerComponent({...props}) {
   let vidref = React.createRef()
   const show = props.pathname && props.pathname.startsWith('/player')
   let [playbackRate, setPlaybackRate] = React.useState(1)
+  let [recentActions, setRecentActions] = React.useState(null)
 
   React.useEffect( () => {
     if (vidref.current) vidref.current.playbackRate = playbackRate
   }, [playbackRate])
 
-  function seek(secs) {
-    if (vidref.current) vidref.current.currentTime = vidref.current.currentTime + secs
+  
+  React.useEffect( () => {
+    if (! props.id) return
+    (async function() {
+      setRecentActions(await loadRecentActions(props.id))
+    })()
+  }, [props.id])
+  
+  function seek(secs, absolute = false) {
+    if (vidref.current) vidref.current.currentTime = secs + (absolute ? vidref.current.currentTime : 0)
   }
   
   return (
     <div className={show ? "" : "hidden"}>
     {JSONView(props)}
-    <p>Video player!</p>
 
+    <p>Video player!</p>
 
     { props.url ?
       <video ref={vidref} autoPlay src={props.url} controls /> : null }
@@ -38,6 +48,8 @@ function PlayerComponent({...props}) {
         <option value={1.5}>1.5x speed</option>
         <option value={1.75}>1.75x speed</option>
         <option value={2}>2x speed</option>
+        <option value={2.25}>2.25x speed</option>
+        <option value={2.5}>2.5x speed</option>
       </Select>
       <Button onClick={(e) => { seek(-30) }}><Icon>replay_30</Icon></Button>
       <Button onClick={(e) => { seek(30) }}><Icon>forward_30</Icon></Button>
@@ -46,6 +58,12 @@ function PlayerComponent({...props}) {
 
     { props.id ? <Video key={props.id} id={props.id} /> : null }
 
+    { recentActions ?
+    recentActions.map( a => (<div key={a.timestamp} onClick={e=>seek(a.videotime, true)} >Continue playback from {a.videotime}</div>) )
+    : null }
+
+
+    
       <div style={{height:'50px'}}>
       </div>
     
@@ -55,7 +73,7 @@ function PlayerComponent({...props}) {
 
 function mapState(state) {
   return {
-    pathname: state.pathname, // needed to know to show only on /player page
+    pathname: (state.router && state.router.pathname), // needed to know to show only on /player page
     ...state.player
   }
 }

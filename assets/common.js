@@ -1,5 +1,9 @@
 const MUI = MaterialUI
 
+export function getfilenameid(filename) {
+  return filename.split('.')[0]
+}
+
 export function parseUrlParams(url) {
   if (url.indexOf('?') === -1) return null
   return url.split('?')[1].

@@ -39,8 +39,7 @@ function mapStateToProps(state) {
   }
 
   return {
-    pathname: state.pathname,
-    view: viewmap[state.pathname] || state.pathname,
+    view: state.router && (viewmap[state.router.pathname] || state.router.pathname),
     router: state.router
   }
 }

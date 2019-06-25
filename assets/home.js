@@ -5,7 +5,7 @@ const {Card} = MaterialUI
 import {Playlist} from './playlist.js'
 import {PlaylistItem} from './playlistitem.js'
 import {SampleVideo} from './video.js'
-const {TextField, FormControl, InputLabel, Input, FormHelperText} = MaterialUI
+const {Button, TextField, FormControl, InputLabel, Input, FormHelperText} = MaterialUI
 import {DownloadsInProgress} from './downloads.js'
 import {parseUrlParams} from './common.js'
 
@@ -28,6 +28,7 @@ function InputURL() {
     <InputLabel htmlFor="my-input">Youtube URL</InputLabel>
     <Input name="url" id="my-input" aria-describedby="my-helper-text" />
     <FormHelperText id="my-helper-text">Enter youtube URL to download it</FormHelperText>
+    <Button type="submit">Download</Button>
   </FormControl>
     </form>
     )

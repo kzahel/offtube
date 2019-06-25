@@ -11,7 +11,6 @@ import {Home} from './home.js'
 import {youtubelogin, youtubelogout} from './actions.js'
 import {Player} from './player.js'
 
-
 const {
   AppBar,
   Toolbar,
@@ -19,6 +18,7 @@ const {
   Button,
   Card,
   Icon,
+  IconButton,
   Dialog,
   DialogTitle
 } = MaterialUI;
@@ -42,6 +42,7 @@ function AppComponent({dispatch, router, ...props}) {
       case 'home':
         return <Home />
       case 'player':
+        // it only hide/shows
         return null
       case 'subscriptions':
         return <Subscriptions />
@@ -50,10 +51,12 @@ function AppComponent({dispatch, router, ...props}) {
       case 'downloads':
         return <Downloads />
       default:
-        return (<div>
+        return (
+        <div>
           404 not found!
           {JSONView({props,router})}
-            </div>)
+        </div>
+        )
 
     }
   }
@@ -69,10 +72,6 @@ function AppComponent({dispatch, router, ...props}) {
               { props.youtubeLoggedIn ?
                 <Button color="primary" onClick={props.actions.youtubelogout}>Logout</Button> :
                 <Button color="primary" onClick={props.actions.youtubelogin}>Login</Button> }
-
-
-
-              
             </Typography>
           </Toolbar>
         </AppBar>
@@ -95,7 +94,7 @@ function AppComponent({dispatch, router, ...props}) {
 function mapStateToProps(state) {
   return {
     gapi: state.status.GAPI_CLIENT_LOADED,
-    pathname: state.pathname,
+    pathname: state.router && state.router.pathname,
     youtubeLoggedIn: state.status.YOUTUBE_USER_AUTHENTICATED
   }
 }
@@ -106,8 +105,6 @@ function mapDispatch(dispatch) {
        youtubelogin}, dispatch)
   }
 }
-
-
 
 export const App = ReactRedux.connect(mapStateToProps, mapDispatch)(AppComponent)
 
