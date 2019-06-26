@@ -40,9 +40,13 @@ function AppComponent({dispatch, router, ...props}) {
   function render_main() {
     // player component hideshows instead of render main
     if (props.view && props.view.startsWith('/player')) return null
+    console.log('render_main',props)
     switch(props.view) {
       case 'home':
         return <Home />
+      case 'playlists':
+        const playlistId = router.router.data.params[0]
+        return <Playlist id={playlistId}/>
       case 'player':
         // it only hide/shows
         return null

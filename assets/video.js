@@ -65,6 +65,7 @@ export function SampleVideo() {
 }
 
 function VideoComponent({dispatch,id,mediaurl,...props}) {
+  console.assert(id.length < 15)
   const debug=false
   console.assert(id !== "undefined")
   const [dialogOpen, setDialogOpen] = React.useState(false)

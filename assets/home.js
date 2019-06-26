@@ -63,9 +63,12 @@ function HomeComponent({dispatch, ...props}) {
     if (!_.isEmpty(props.playlists)) {
       for (let playlist of props.playlists) {
         //        let actions = {onClickPlaylist:this.onClickPlaylist.bind(this,playlist.id)};
-        let actions = {onClickPlaylist:()=>{setSelectedPlaylistId(playlist.id)}}
+        let a = {onClickPlaylist:()=>{
+          //setSelectedPlaylistId(playlist.id)
+          dispatch(actions.change_route(`/playlists/${playlist.id}`))
+        }}
         playlists.push(<PlaylistItem {...playlist} key={playlist.id}
-                                     actions={actions} />);
+                                     actions={a} />);
       }
     }
     let selectedPlaylist

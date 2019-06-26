@@ -18,6 +18,7 @@ function PlayerComponent({...props}) {
   React.useEffect( () => {
     console.log('player routerchange',props.router)
     if (props.router &&
+        props.router.view === 'player' &&
         props.router.data &&
         props.router.data.params &&
         props.router.data.params.length &&

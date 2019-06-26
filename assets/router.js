@@ -5,6 +5,7 @@ import {AppRouter} from './app.js'
 
 const routes = [
   { path: '/', action: () => ({view:'home'}) },
+  { path: '/playlists/(.*)', action: () => ({view:'playlists'}) },
   { path: '/subscriptions', action: () => ({view:'subscriptions'}) },
   { path: '/subscriptions/(.*)', action: () => ({view:'subscriptions-detail'}) },
   { path: '/player', action: () => ({view:'player'}) },
@@ -38,9 +39,9 @@ function mapStateToProps(state) {
     '/player':'player',
     '/downloads':'downloads'
   }
-
   return {
-    view: state.router && (viewmap[state.router.pathname] || state.router.pathname),
+    //    view: state.router && (viewmap[state.router.pathname] || state.router.pathname),
+    view: state.router && state.router.data && state.router.data.view,
     router: state.router
   }
 }

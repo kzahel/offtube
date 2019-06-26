@@ -54,7 +54,7 @@ async function periodicallyRecordPlayStatus() {
     const state = _store.getState()
     //const istore = tx.objectStore('actions');
     const payload = {videoid:state.player.id, videotime: v.currentTime, timestamp:Date.now()}
-    console.log('add action to db', payload)
+    //console.log('add action to db', payload)
     await db.add('actions', payload)
     await tx.done;
   }

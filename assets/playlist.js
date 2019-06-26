@@ -2,32 +2,37 @@ import {Video} from './video.js'
 const {Box} = MaterialUI
 
 
-export class Playlist extends React.Component {
-  constructor() {
-    super()
-    this.state = {
-      items:[]
-    }
+function PlaylistComponent(props) {
+  const [items, setItems] = React.useState([])
 
-  }
-  componentDidMount() {
-    this.loaditems()
-  }
-  loaditems = async () => {
+  async function loaditems() {
     // TODO -- put thru dispatch / connect
     const resp = await gapi.client.youtube.playlistItems.list({
       "part": "snippet,contentDetails",
       "maxResults": 50,
-      "playlistId": this.props.id
+      "playlistId": props.id
     })
     resp.result.items.sort( (a,b) => b.snippet.position - a.snippet.position )
-    this.setState({items:resp.result.items})
+    setItems(resp.result.items)
   }
-  render() {
-    const items = []
-    for (let item of this.state.items) {
+
+  React.useEffect( () => {
+
+    if (! items.length && props.gapi && props.youtubeLoggedIn) {
+      loaditems()
+    }
+  }, [props.gapi, props.youtubeLoggedIn])
+  
+  function render() {
+
+    if (! items.length) {
+      return <MaterialUI.CircularProgress />
+    }
+    
+    const resitems = []
+    for (let item of items) {
       const id = item.snippet.resourceId.videoId
-      items.push( (
+      resitems.push( (
         <div key={id} className="playlist">
           <Video {...item} id={id} />
         </div>
@@ -36,10 +41,20 @@ export class Playlist extends React.Component {
     }
     return (
       <Box>
-        <div>Playlist {this.props.id}
-          {items}
+        <div>Playlist {props.id}
+          {resitems}
         </div>
       </Box>
     )
   }
+  return render()
 }
+
+function mapState(state) {
+  return {
+    youtubeLoggedIn: state.status.YOUTUBE_USER_AUTHENTICATED,
+    gapi: state.status.GAPI_CLIENT_LOADED,
+  }
+}
+
+export const Playlist = ReactRedux.connect(mapState)(PlaylistComponent)
