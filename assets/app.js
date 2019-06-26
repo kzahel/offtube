@@ -40,7 +40,7 @@ function AppComponent({dispatch, router, ...props}) {
   function render_main() {
     // player component hideshows instead of render main
     if (props.view && props.view.startsWith('/player')) return null
-    console.log('render_main',props)
+    //console.log('render_main',props)
     switch(props.view) {
       case 'home':
         return <Home />

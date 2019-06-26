@@ -16,10 +16,12 @@ function PlayerComponent({...props}) {
   }, [playbackRate])
 
   React.useEffect( () => {
-    console.log('player routerchange',props.router)
+    console.log('player routerchange',props)
     if (props.router &&
-        props.router.view === 'player' &&
+        props.fs &&
+        props.router &&
         props.router.data &&
+        props.router.data.view === 'player' &&
         props.router.data.params &&
         props.router.data.params.length &&
         ! props.id) {
@@ -27,7 +29,7 @@ function PlayerComponent({...props}) {
       const id = props.router.data.params[0]
       props.dispatch(actions.playmedia(id))
     }
-  }, [props.router])
+  }, [props.router, props.fs, props.id])
   
   React.useEffect( () => {
     if (! props.id) return
@@ -91,6 +93,7 @@ function PlayerComponent({...props}) {
 function mapState(state) {
   return {
     router: state.router,
+    fs: state.status.FS_READY,
     pathname: (state.router && state.router.pathname), // needed to know to show only on /player page
     ...state.player
   }
