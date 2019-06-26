@@ -19,7 +19,11 @@ function DownloadsInProgressComponent({downloading}) {
         <Card key={m.id}>
           <CardContent>
             Download:
-            {JSONView(m)}
+            {JSONView({id:m.id,
+                       bytesdown:m.bytesdown,
+                       name:(m.formats && m.formats.title),
+                       downloading:m.downloading,
+                       error:m.error})}
           </CardContent>
         </Card>))}
       </div>
