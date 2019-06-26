@@ -15,6 +15,7 @@ function DownloadsInProgressComponent({downloading}) {
     // TODO add key
     return (
       <div>
+        { downloading.length ? "Downloads in Progress:" : null }
         {downloading.map(m=>(
         <Card key={m.id}>
           <CardContent>
@@ -49,15 +50,22 @@ function DownloadsComponent(props) {
     actions.deletemedia({id, file:f.file})
   }
 
+  let content
   if (props.downloads && props.downloads.length) {
-    const videos = props.downloads.map( f => {
+    content = props.downloads.map( f => {
       const id = getfilenameid((f.file || f.fileEntry).name)
       return <Video onDeleteCallback={(e)=>onDelete(e, id, f)} key={id} id={id} />
     })
-    return videos
   } else {
-    return JSONView({props})
+    content = JSONView({props})
   }
+
+  return (
+    <div>
+      <DownloadsInProgress />
+      {content}
+    </div>
+    );
 }
 
 
