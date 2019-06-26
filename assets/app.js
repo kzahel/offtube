@@ -38,6 +38,8 @@ function AppComponent({dispatch, router, ...props}) {
   const [open, setOpen] = React.useState(false)
   
   function render_main() {
+    // player component hideshows instead of render main
+    if (props.view && props.view.startsWith('/player')) return null
     switch(props.view) {
       case 'home':
         return <Home />

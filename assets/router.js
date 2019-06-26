@@ -8,6 +8,7 @@ const routes = [
   { path: '/subscriptions', action: () => ({view:'subscriptions'}) },
   { path: '/subscriptions/(.*)', action: () => ({view:'subscriptions-detail'}) },
   { path: '/player', action: () => ({view:'player'}) },
+  { path: '/player/(.*)', action: () => ({view:'player'}) },
   { path: '/downloads', action: () => ({view:'downloads'}) },
   { path: '(.*)', action: () => ({view:'404'}) }
 ]

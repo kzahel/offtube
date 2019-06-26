@@ -1,7 +1,9 @@
 import {JSONView} from './common.js'
 import {Video} from './video.js'
 import {loadRecentActions} from './db.js'
+import * as actions from './actions.js'
 const {Button, Icon, Select, InputLabel} = MaterialUI
+
 
 function PlayerComponent({...props}) {
   let vidref = React.createRef()
@@ -13,6 +15,18 @@ function PlayerComponent({...props}) {
     if (vidref.current) vidref.current.playbackRate = playbackRate
   }, [playbackRate])
 
+  React.useEffect( () => {
+    console.log('player routerchange',props.router)
+    if (props.router &&
+        props.router.data &&
+        props.router.data.params &&
+        props.router.data.params.length &&
+        ! props.id) {
+      // this is an initial load probably (with video id in url
+      const id = props.router.data.params[0]
+      props.dispatch(actions.playmedia(id))
+    }
+  }, [props.router])
   
   React.useEffect( () => {
     if (! props.id) return
@@ -34,7 +48,7 @@ function PlayerComponent({...props}) {
     <p>Video player!</p>
 
     { props.url ?
-      <video ref={vidref} autoPlay src={props.url} controls /> : null }
+      <video style={{width:'100%', height:'55px'}} ref={vidref} autoPlay src={props.url} controls /> : null }
 
     <br />
     
@@ -75,11 +89,13 @@ function PlayerComponent({...props}) {
 
 function mapState(state) {
   return {
+    router: state.router,
     pathname: (state.router && state.router.pathname), // needed to know to show only on /player page
     ...state.player
   }
 }
 function mapDispatch(dispatch) {
+  return {dispatch}
 }
 
 export const Player = ReactRedux.connect(mapState, mapDispatch)(PlayerComponent)

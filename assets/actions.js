@@ -221,8 +221,11 @@ export function mediaload(id) {
 }
 
 export function playmedia(id, title, url) {
+  console.assert(id && id !== 'undefined')
   return async function(dispatch) {
     dispatch( {type:types.PLAY_MEDIA, payload:{id,title,url}} )
+    // change route...
+    dispatch(change_route( `/player/${id}` ))
   }
 }
 
@@ -297,7 +300,7 @@ export function getplaylists() {
   }
 }
 
-export function change_route(pathname = window.location.pathname, data = null) {
+export function change_route(pathname = window.location.pathname) {
   return async function(dispatch) {
     router.resolveRoute({ pathname: pathname }).then(data => {
       history.pushState(null, null, pathname )

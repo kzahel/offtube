@@ -92,8 +92,11 @@ function HomeComponent({dispatch, ...props}) {
         { ( ! props.youtubeLoggedIn ) ?
           <SampleVideo videoid="hnme8REPenQ" />
           : null }
-        {playlists}
+
         {selectedPlaylist}
+
+        
+        {playlists}
         {false ?
          <pre className="mypre">{JSONView(this.state)}</pre> : null }
       </React.Fragment>

@@ -36,7 +36,8 @@ function DownloadFormats({formats,onSelect}) {
   return (
     <List>
       {formats.formats.map( f => {
-        return <ListItem onClick={()=>handleClick(f.format_id)}key={`${id}-${f.format_id}`}>{f.format}</ListItem>
+        return <ListItem onClick={()=>handleClick(f.format_id)}
+                         key={id+'_'+f.format_id}>{f.format}</ListItem>
       })}
     </List>
   )
