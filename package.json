@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "./node_modules/.bin/babel assets --watch --out-dir assets/jsx --ignore assets/jsx --source-maps",
+    "watch": "./node_modules/.bin/babel assets --verbose --watch --out-dir assets/jsx --ignore assets/jsx --ignore assets/bundle.js --source-maps",
     "start": "node server.js"
   },
   "repository": {
