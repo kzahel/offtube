@@ -32,12 +32,12 @@ function DownloadFormats({formats,onSelect}) {
     store.dispatch( actions.dodownload({id, opt_format_id:format_id, opt_formats:formats}) )
     onSelect()
   }
-
+  console.log('formats',formats.formats)
   return (
     <List>
       {formats.formats.filter(f=>f.acodec!='none').map( f => {
         return <ListItem onClick={()=>handleClick(f.format_id)}
-                         key={id+'_'+f.format_id}>{f.format}</ListItem>
+                         key={id+'_'+f.format_id}>{f.format} {(f.abr&&f.asr)?`${f.asr}hz@${f.abr}kbit`:null}</ListItem>
       })}
     </List>
   )
