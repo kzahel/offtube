@@ -23,19 +23,19 @@ const {Button,
 
 function DownloadFormats({formats,onSelect}) {
   if (! formats) {
-    return <div>No formats</div>
+    return <div>Getting formats <MaterialUI.CircularProgress /></div>
   }
 
   const id = formats.id
   function handleClick(format_id) {
     // start download !
-    store.dispatch( actions.downloadmedia(id, format_id) )
+    store.dispatch( actions.dodownload({id, opt_format_id:format_id, opt_formats:formats}) )
     onSelect()
   }
-  
+
   return (
     <List>
-      {formats.formats.map( f => {
+      {formats.formats.filter(f=>f.acodec!='none').map( f => {
         return <ListItem onClick={()=>handleClick(f.format_id)}
                          key={id+'_'+f.format_id}>{f.format}</ListItem>
       })}
@@ -90,7 +90,8 @@ function VideoComponent({dispatch,id,mediaurl,...props}) {
   function doOpenInYoutube() {
     window.open(`https://www.youtube.com/watch?v=${id}`, '_blank')
   }
-  function doOpenDownloadDialog() {
+  function doOpenDownloadFormatsDialog() {
+    dispatch(actions.getformats({id}))
     setDialogOpen(true)
   }
   
@@ -101,7 +102,7 @@ function VideoComponent({dispatch,id,mediaurl,...props}) {
     if (props.file) actions['Open in New Window'] = doOpenInWindow;
     if (id) actions['Open in Youtube'] = doOpenInYoutube;
 
-    if (! props.file) actions['Download...'] = doOpenDownloadDialog;
+    if (! props.file) actions['Download...'] = doOpenDownloadFormatsDialog;
 
 
     return {
@@ -186,7 +187,7 @@ function VideoComponent({dispatch,id,mediaurl,...props}) {
 
         <SimpleMenu actions={menuactions()} />
         <Dialog open={dialogOpen} onClose={()=>setDialogOpen(false)}>
-          <DialogTitle>Select Video Format</DialogTitle>
+          <DialogTitle>Select Audio Format</DialogTitle>
           <DownloadFormats onSelect={()=>setDialogOpen(false)} formats={props.formats} />
         </Dialog>
       </CardActions>

@@ -133,6 +133,7 @@ function getDerivedId({id, url, formats}) {
   return url
 }
 
+// needs direct download URL incl. the format
 export function downloadsave(id, url, formats) {
   console.assert(id)
   //if (! id) id = decodeurlparams(url)
@@ -153,6 +154,7 @@ export function downloadsave(id, url, formats) {
         var result = await reader.read()
       } catch(e) {
         const {name, message} = e
+        debugger // handle this better
         dispatch({type:types.MEDIA_DOWNLOAD_FAILED,payload:{id,url,error:{name,message}}})
         return
       }
@@ -163,6 +165,7 @@ export function downloadsave(id, url, formats) {
         await writer.write(result.value)
       } catch(e) {
         const {name, message} = e
+        debugger // handle this better
         dispatch({type:types.MEDIA_DOWNLOAD_FAILED,payload:{id,url,error:{name,message}}})
         return
       }
@@ -176,7 +179,10 @@ export function downloadsave(id, url, formats) {
   }  
 }
 
-export function dodownload({id, url}) {
+/**
+ formatId is optional
+*/
+export function dodownload({id, url, opt_format_id, opt_formats}) {
   console.assert(id||url)
   return async function(dispatch) {
     // TODO ensure FS loaded / ready
@@ -186,13 +192,23 @@ export function dodownload({id, url}) {
       if (state.media[id].file) return
     }
     dispatch({type:types.MEDIA_DOWNLOAD_STARTED,payload:{id,url}})
-    const formats = await getformats({id,url})(dispatch)
-    if (formats.error) {
-      dispatch({type:types.MEDIA_DOWNLOAD_FAILED,payload:{id,url,error:formats.stderr}})
-      return
+
+    let formats
+    let format_id
+    
+    if (opt_format_id) {
+      format_id = opt_format_id
+      formats = opt_formats
+    } else {
+      formats = await getformats({id,url})(dispatch)
+      if (formats.error) {
+        dispatch({type:types.MEDIA_DOWNLOAD_FAILED,payload:{id,url,error:formats.stderr}})
+        return
+      }
+      const format = select_audio_format(formats.formats)
+      format_id = format.format_id
     }
-    const format = select_audio_format(formats.formats)
-    const format_id = format.format_id
+
     const vidurl = api.get_video_url({id,url}, format_id)
     const derivedId = getDerivedId({id,url,formats})
     console.assert(derivedId)
