@@ -187,7 +187,7 @@ function VideoComponent({dispatch,id,mediaurl,...props}) {
 
         <SimpleMenu actions={menuactions()} />
         <Dialog open={dialogOpen} onClose={()=>setDialogOpen(false)}>
-          <DialogTitle>Select Audio Format</DialogTitle>
+          <DialogTitle>Select Media Format</DialogTitle>
           <DownloadFormats onSelect={()=>setDialogOpen(false)} formats={props.formats} />
         </Dialog>
       </CardActions>
