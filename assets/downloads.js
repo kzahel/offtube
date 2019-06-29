@@ -33,7 +33,7 @@ function DownloadsInProgressComponent({downloading}) {
   return null
 }
 function mapState(state) {
-  return {downloading: Object.values(state.media).filter( m => m.downloading === true )}
+  return {downloading: Object.values(state.media).filter( m => (m.downloading === true || m.error) )}
 }
 export const DownloadsInProgress = ReactRedux.connect(mapState)(DownloadsInProgressComponent)
 
@@ -70,8 +70,15 @@ function DownloadsComponent(props) {
 
 
 function mapProps(state) {
+  // weird behavior here. we pass in files before they are ready because
+  // displaying them causes them to load their file metadata.
+  const dls = Object.values(state.media).filter( m => (m.file || m.fileEntry)  )
+  dls.sort( (a,b) => {
+    if (a.file && b.file)
+      return b.file.lastModified - a.file.lastModified
+  })
   return {
-    downloads: Object.values(state.media).filter( m => (m.file || m.fileEntry)  ),
+    downloads: dls,
     //downloads: Object.values(state.media), // all media are downloads ?
     fs: state.status.FS_READY
   }

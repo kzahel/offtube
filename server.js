@@ -93,17 +93,26 @@ app.get('/api/download', function(req, res) {
   
   const proc = spawn(cmd, args)
   console.log('begin: streaming video',inp)
-  proc.stdout.pipe(res)
+
+  const state = {} // generate/use a session id or something?
+  // proc.stdout.pipe(res) // it was crashing ?
+  proc.stdout.on('data', d=>{
+    console.assert(! state.ended)
+    res.write(d)
+  })
+  
   proc.stderr.on('data', d=>{
     // have to drain the stderr or it fails
     //console.log('download stderr',d)
   })
   proc.on('end', ()=>{
     console.log('end: video stream over',id)
+    state.ended=true
     res.end()
   })
   proc.on('exit', ()=>{
     console.log('exit: video stream exit',id)
+    state.ended=true
     res.end()
   })
 })

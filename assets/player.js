@@ -43,7 +43,8 @@ function PlayerComponent({...props}) {
       vidref.current.currentTime = secs + (absolute ? 0 : vidref.current.currentTime)
     }
   }
-  
+  const vidheight = 100;
+  // audio is 55
   return (
     <div className={show ? "" : "hidden"}>
     {JSONView(props)}
@@ -51,7 +52,7 @@ function PlayerComponent({...props}) {
     <p>Video player!</p>
 
     { props.url ?
-      <video style={{width:'100%', height:'55px'}} ref={vidref} autoPlay src={props.url} controls /> : null }
+      <video style={{width:'100%', height:100}} ref={vidref} autoPlay src={props.url} controls /> : null }
 
     <br />
     
