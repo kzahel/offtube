@@ -12,8 +12,9 @@ function PlaylistComponent(props) {
       "maxResults": 50,
       "playlistId": props.id
     })
-    resp.result.items.sort( (a,b) => b.snippet.position - a.snippet.position )
-    setItems(resp.result.items)
+    let items = resp.result.items.filter( item => item.snippet.title !== 'Deleted video' )
+    items.sort( (a,b) => b.snippet.position - a.snippet.position )
+    setItems(items)
   }
 
   React.useEffect( () => {
