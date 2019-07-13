@@ -33,7 +33,7 @@ function DownloadsInProgressComponent({downloading}) {
   return null
 }
 function mapState(state) {
-  return {downloading: Object.values(state.media).filter( m => (m.downloading === true || m.error) )}
+  return {downloading: Object.values(state.media).filter( m => (m.downloading === true) )}
 }
 export const DownloadsInProgress = ReactRedux.connect(mapState)(DownloadsInProgressComponent)
 
