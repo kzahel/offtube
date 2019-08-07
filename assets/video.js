@@ -118,7 +118,7 @@ function VideoComponent({dispatch,id,mediaurl,...props}) {
 
 
   function thumbnail() {
-    if (props.snippet) return (<img className="vidthumb" src={props.snippet.thumbnails.default.url} />)
+    if (props.snippet && props.snippet.thumbnails) return (<img className="vidthumb" src={props.snippet.thumbnails.default.url} />)
     else if (props.formats) return (<img className="vidthumb" src={props.formats.thumbnail} />)
     else return (<Icon>video_library</Icon>);
   }
