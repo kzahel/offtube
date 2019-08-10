@@ -7,14 +7,32 @@ function PlaylistComponent(props) {
 
   async function loaditems() {
     // TODO -- put thru dispatch / connect
-    const resp = await gapi.client.youtube.playlistItems.list({
-      "part": "snippet,contentDetails",
-      "maxResults": 50,
-      "playlistId": props.id
-    })
-    let items = resp.result.items.filter( item => item.snippet.title !== 'Deleted video' )
-    items.sort( (a,b) => b.snippet.position - a.snippet.position )
-    setItems(items)
+    let allitems = []
+    let resp
+    let pageToken = null
+    let opts
+    let alldone = false
+    while (true) {
+      opts = {
+        part: "snippet,contentDetails",
+        pageToken,
+        maxResults: 50,
+        playlistId: props.id
+      }
+      resp = await gapi.client.youtube.playlistItems.list(opts)
+      if (resp.result.nextPageToken) {
+        pageToken = resp.result.nextPageToken
+      } else {
+        alldone = true
+      }
+      allitems = allitems.concat( resp.result.items )
+      // await new Promise(r=>setTimeout(r,1000))
+      if (alldone) break
+    }
+    // could also filter for "private"
+    allitems = allitems.filter( item => item.snippet.title !== 'Deleted video' )
+    allitems.sort( (a,b) => b.snippet.position - a.snippet.position )
+    setItems(allitems)
   }
 
   React.useEffect( () => {
