@@ -1,3 +1,0 @@
-{
-  client_id: 'abcdefg'
-}

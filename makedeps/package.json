@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "scripts":{
-    "make":"./node_modules/.bin/browserify index.js > ../assets/bundle.js"
+  "scripts": {
+    "make": "./node_modules/.bin/browserify index.js > ../assets/bundle.js"
   },
   "dependencies": {
     "@material-ui/core": "^4.1.3",
